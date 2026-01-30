@@ -1,0 +1,52 @@
+# Maven
+target/
+*.jar
+*.war
+*.ear
+*.class
+dependency-reduced-pom.xml
+mvnw
+mvnw.cmd
+.mvn/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+*.classpath
+*.project
+*.settings/
+*.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+._*
+
+# Python (v1/v2 legacy or scripts)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+pip-log.txt
+*.sqlite3
+
+# Archives / Backups
+*.tar.gz
+*.zip
+*.rar
+*.7z
+*.bak
+*.swp
+
+# Node / JS (if any web frontend exists)
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
