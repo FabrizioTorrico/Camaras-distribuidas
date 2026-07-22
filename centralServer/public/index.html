@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitoreo Distribuido - Dashboard</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.75);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --danger: #ef4444;
+        --danger-hover: #dc2626;
+        --success: #10b981;
+        --border: rgba(255, 255, 255, 0.1);
+        --shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: var(--bg-color);
+        background-image: radial-gradient(
+          circle at top right,
+          #1e293b,
+          transparent 400px
+        );
+        color: var(--text-main);
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(to right, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .header-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: var(--success);
+        box-shadow: 0 0 8px var(--success);
+        animation: pulse-dot 2s infinite ease-in-out;
+      }
+
+      @keyframes pulse-dot {
+        0% {
+          transform: scale(0.9);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.9);
+          opacity: 0.8;
+        }
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        backdrop-filter: blur(12px);
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        box-shadow: var(--shadow);
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      }
+
+      .video-container {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background-color: #000;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+      }
+
+      img.stream-video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .placeholder {
+        color: var(--text-muted);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .placeholder svg {
+        width: 48px;
+        height: 48px;
+        opacity: 0.5;
+      }
+
+      .card-body {
+        padding: 1.25rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .cam-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .cam-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .badge.checking {
+        background-color: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+      }
+
+      .badge.streaming {
+        background-color: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        animation: pulse-border 2s infinite;
+      }
+
+      @keyframes pulse-border {
+        0% {
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+        50% {
+          border-color: rgba(239, 68, 68, 0.8);
+        }
+        100% {
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+      }
+
+      .cam-ip {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .controls button {
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: justify;
+        gap: 0.4rem;
+      }
+
+      .btn-start {
+        background-color: var(--primary);
+        color: white;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+
+      .btn-start:hover {
+        background-color: var(--primary-hover);
+      }
+
+      .btn-stop {
+        background-color: transparent;
+        color: var(--danger);
+        border: 1px solid var(--danger);
+      }
+
+      .btn-stop:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+      }
+
+      .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--card-bg);
+        border-radius: 16px;
+        border: 1px dashed var(--border);
+        color: var(--text-muted);
+      }
+
+      .play-icon,
+      .stop-icon {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Monitoreo Distribuido</h1>
+      <div class="header-status">
+        <div class="status-dot"></div>
+        Servidor Activo
+      </div>
+    </header>
+
+    <div id="cameras-grid" class="grid">
+      <!-- Render dinámico aquí -->
+    </div>
+
+    <script>
+      const grid = document.getElementById("cameras-grid");
+
+      // Mantener track de los iframes/imagenes actuales
+      const currentCameras = new Set();
+      let camerasData = [];
+
+      async function fetchCameras() {
+        try {
+          const res = await fetch("/api/cameras");
+          if (!res.ok) throw new Error("API Error");
+          camerasData = await res.json();
+          renderCameras(camerasData);
+        } catch (err) {
+          console.error("Error fetching cameras:", err);
+        }
+      }
+
+      async function toggleStream(camId, start) {
+        try {
+          const endpoint = start ? "/api/start" : "/api/stop";
+          const res = await fetch(`${endpoint}?id=${camId}`);
+          if (res.ok) {
+            // Forzar mutación de lista local
+            const cam = camerasData.find((c) => c.id === camId);
+            if (cam) cam.isStreaming = start;
+            renderCameras(camerasData); // Optimistic UI update
+          }
+        } catch (e) {
+          alert("Error contactando al servidor central");
+        }
+      }
+
+      function createCameraCard(cam) {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.id = `card-${cam.id}`;
+
+        const isStreaming = cam.isStreaming;
+
+        // Si está transmitiendo, forzamos re-descarga añadiendo timestamp, pero como es MJPEG, basta con la URL base
+        // y el navegador gestionara el keep-alive del stream multipart/x-mixed-replace.
+        // Añadimos cache-buster aleatorio en montaje inicial.
+        const streamUrl = `/stream?id=${cam.id}&cb=${Date.now()}`;
+
+        const videoHTML = isStreaming
+          ? `<img class="stream-video" src="${streamUrl}" alt="Live stream ${cam.id}" />`
+          : `<div class="placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                    <span>Modo Standby (Chequeando Movimiento)</span>
+                   </div>`;
+
+        const statusBadge = isStreaming
+          ? `<span class="badge streaming">🔴 Streaming</span>`
+          : `<span class="badge checking">🔍 Checking</span>`;
+
+        const btnHTML = isStreaming
+          ? `<button class="btn-stop" onclick="toggleStream('${cam.id}', false)">
+                    <svg class="stop-icon" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"></rect></svg>
+                    Detener
+                   </button>`
+          : `<button class="btn-start" onclick="toggleStream('${cam.id}', true)">
+                    <svg class="play-icon" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    Iniciar Transmisión
+                   </button>`;
+
+        card.innerHTML = `
+                <div class="video-container" id="video-container-${cam.id}">
+                    ${videoHTML}
+                </div>
+                <div class="card-body">
+                    <div class="cam-info">
+                        <div class="cam-name">
+                            ${cam.id} 
+                            ${statusBadge}
+                        </div>
+                        <span class="cam-ip">IP: ${cam.ip}</span>
+                    </div>
+                    <div class="controls" id="controls-${cam.id}">
+                        ${btnHTML}
+                    </div>
+                </div>
+            `;
+        return card;
+      }
+
+      function renderCameras(cameras) {
+        if (cameras.length === 0) {
+          grid.innerHTML = `
+                    <div class="empty-state">
+                        <h2>No hay Edge Nodes conectados</h2>
+                        <p>Inicia un nodo en tu red para comenzar.</p>
+                    </div>
+                `;
+          currentCameras.clear();
+          return;
+        }
+
+        // Remove empty state if it exists
+        const emptyState = grid.querySelector(".empty-state");
+        if (emptyState) emptyState.remove();
+
+        // Check if we need to remove disconnected cameras
+        const newCamIds = new Set(cameras.map((c) => c.id));
+        for (const oldId of currentCameras) {
+          if (!newCamIds.has(oldId)) {
+            document.getElementById(`card-${oldId}`).remove();
+            currentCameras.delete(oldId);
+          }
+        }
+
+        // Check adding or updating
+        cameras.forEach((cam) => {
+          const existingCard = document.getElementById(`card-${cam.id}`);
+          if (!existingCard) {
+            // Add new card
+            grid.appendChild(createCameraCard(cam));
+            currentCameras.add(cam.id);
+          } else {
+            // Update existing card ONLY if state changed (avoid flickering the stream)
+            const isCurrentlyStreaming =
+              existingCard.querySelector(".stream-video") !== null;
+            if (isCurrentlyStreaming !== cam.isStreaming) {
+              // Re-render completely this card to update image and buttons
+              const newCard = createCameraCard(cam);
+              existingCard.replaceWith(newCard);
+            }
+          }
+        });
+      }
+
+      // Init polling
+      fetchCameras();
+      setInterval(fetchCameras, 2000); // Polling cada 2 segundos para ver si el Edge Node inicia o para
+    </script>
+  </body>
+</html>

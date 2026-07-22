@@ -1,0 +1,18 @@
+[Unit]
+Description=Edge Node Camera Client
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Change 'pi' to your username if different
+User=fabri
+# The working directory is important so it finds the jar
+WorkingDirectory=/home/fabri/Projects/tp-pdytr/v3/edgeNode
+# Path to the startup script
+ExecStart=/bin/bash /home/fabri/Projects/tp-pdytr/v3/edgeNode/start_node.sh 192.168.1.50 5555 cam_lab_1
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
